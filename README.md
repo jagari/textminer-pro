@@ -1,8 +1,11 @@
 # TextMiner Pro
 
 [![Python Package](https://github.com/jagari/textminer-pro/actions/workflows/pypi.yml/badge.svg)](https://github.com/jagari/textminer-pro/actions/workflows/pypi.yml)
+[![Deploy Documentation](https://github.com/jagari/textminer-pro/actions/workflows/docs.yml/badge.svg)](https://github.com/jagari/textminer-pro/actions/workflows/docs.yml)
 [![PyPI version](https://badge.fury.io/py/textminer-pro-InjinSung.svg)](https://badge.fury.io/py/textminer-pro-InjinSung)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://jagari.github.io/textminer-pro/)
 
 `textminer-pro`는 파이썬 기반의 고급 텍스트 분석 도구입니다.  
 불용어 제거, 핵심 키워드 추출, 텍스트 요약, 언어 감지 기능을 제공합니다.

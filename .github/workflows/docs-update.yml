@@ -1,0 +1,98 @@
+name: Update Documentation
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'textminer/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'mkdocs.yml'
+  workflow_dispatch:
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install mkdocs mkdocs-material mkdocstrings[python]
+        pip install -e .
+        
+    - name: Generate API documentation
+      run: |
+        python -c "
+        import inspect
+        import textminer
+        
+        # API 레퍼런스 자동 생성
+        api_content = '''# API 레퍼런스
+        
+        이 페이지는 TextMiner Pro의 모든 함수와 클래스에 대한 자세한 문서입니다.
+        
+        ## 모듈 개요
+        
+        ::: textminer
+            options:
+              show_source: true
+              show_root_heading: true
+              show_category_heading: true
+        
+        ## 개별 모듈
+        
+        ### Cleaner 모듈
+        ::: textminer.cleaner
+            options:
+              show_source: true
+        
+        ### Detector 모듈  
+        ::: textminer.detector
+            options:
+              show_source: true
+              
+        ### Summarizer 모듈
+        ::: textminer.summarizer
+            options:
+              show_source: true
+        '''
+        
+        with open('docs/api_reference.md', 'w', encoding='utf-8') as f:
+            f.write(api_content)
+        "
+        
+    - name: Update version badge
+      run: |
+        VERSION=$(python -c "import textminer; print(textminer.__version__)")
+        sed -i "s/version-[0-9.]*/version-$VERSION/" README.md
+        sed -i "s/version-[0-9.]*/version-$VERSION/" docs/index.md
+        
+    - name: Build documentation
+      run: mkdocs build
+      
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit documentation updates
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/ README.md
+        git commit -m "docs: 자동 문서 업데이트 [skip ci]" || exit 0
+        git push

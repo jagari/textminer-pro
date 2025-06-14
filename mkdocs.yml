@@ -2,6 +2,7 @@ site_name: TextMiner Pro
 site_description: 파이썬 기반 고급 텍스트 분석 도구
 site_author: InjinSung
 repo_url: https://github.com/jagari/textminer-pro
+site_url: https://jagari.github.io/textminer-pro/
 
 theme:
   name: material
@@ -12,13 +13,19 @@ theme:
     - navigation.tabs
     - navigation.expand
     - search.highlight
+    - navigation.top
+    - content.code.copy
   icon:
     repo: fontawesome/brands/github
 
 markdown_extensions:
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      anchor_linenums: true
   - pymdownx.superfences
   - admonition
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - toc:
       permalink: true
 
@@ -36,10 +43,13 @@ nav:
   - 기여하기: contributing.md
 
 plugins:
-  - search
+  - search:
+      lang: ko
   - mkdocstrings:
       handlers:
         python:
           options:
             docstring_style: google
             show_source: true
+            show_root_heading: true
+            heading_level: 2

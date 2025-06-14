@@ -1,0 +1,89 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+        pip install -e .
+        
+    - name: Run tests
+      run: |
+        pip install pytest
+        pytest
+        
+    - name: Build package
+      run: python -m build
+      
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+    - name: Generate release notes
+      id: generate_notes
+      run: |
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+        echo "## 🚀 새로운 기능" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "버전 ${{ steps.get_version.outputs.VERSION }}의 주요 변경사항:" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "- 패키지 업데이트" >> $GITHUB_OUTPUT
+        echo "- 버그 수정 및 안정성 개선" >> $GITHUB_OUTPUT
+        echo "- 문서 업데이트" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "## 📦 설치 방법" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "\`\`\`bash" >> $GITHUB_OUTPUT
+        echo "pip install textminer-pro-InjinSung==${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+        echo "\`\`\`" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release v${{ steps.get_version.outputs.VERSION }}
+        body: ${{ steps.generate_notes.outputs.RELEASE_NOTES }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload wheel to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/textminer_pro_InjinSung-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
+        asset_name: textminer_pro_InjinSung-${{ steps.get_version.outputs.VERSION }}-py3-none-any.whl
+        asset_content_type: application/zip
+        
+    - name: Upload source distribution to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/textminer-pro-InjinSung-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_name: textminer-pro-InjinSung-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_content_type: application/gzip
