@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='textminer-pro-InjinSung',
-    version='0.1.4',  # __version__ 변수와 일치
+    version='0.1.5',  # __version__ 변수와 일치
     packages=find_packages(),
     install_requires=[
         'nltk>=3.8.1',
